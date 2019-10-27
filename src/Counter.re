@@ -1,19 +1,26 @@
-[@bs.config {jsx: 3}];
+type action =
+  | Dec
+  | Inc;
+
+let reducer = (state, action) =>
+  switch (action) {
+  | Dec => state - 1
+  | Inc => state + 1
+  };
 
 [@react.component]
 let make = (~initialValue=0, ~children) => {
-  let (currentValue, setValue) = React.useState(() => initialValue);
-  let dec = state => state - 1;
-  let inc = state => state + 1;
-  let output = children(currentValue);
+  let (state, send) = React.useReducer(reducer, initialValue);
 
-  <div>
-    <button type_="button" onClick={_ => setValue(dec)}>
-      {"-" |> React.string}
+  let dots = Array.make(state, React.string("."));
+  <>
+    <button type_="button" onClick=(_ => send(Dec))>
+      ("-" |> React.string)
     </button>
-    output
-    <button type_="button" onClick={_ => setValue(inc)}>
-      {"+" |> React.string}
+    (children(state))
+    <button type_="button" onClick=(_ => send(Inc))>
+      ("+" |> React.string)
     </button>
-  </div>;
+    <pre> (dots |> React.array) </pre>
+  </>;
 };
